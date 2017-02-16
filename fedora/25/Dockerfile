@@ -1,8 +1,11 @@
 # 
-# Dockerfile for building Ansible image from source for CentOS 6, with as few additional software as possible.
+# Dockerfile for building Ansible image from source for Fedora 25, with as few additional software as possible.
 #
 # Version  0.1.0
 #
+# Block-fail bug with Ansible 2.2.1 and hence using 2.2.0
+# @ see https://github.com/ansible/ansible/issues/20736
+
 
 # pull base OS image
 FROM fedora:25

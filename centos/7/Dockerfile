@@ -3,6 +3,8 @@
 #
 # Version  0.1.0
 #
+# Block-fail bug with Ansible 2.2.1 and hence using 2.2.0
+# @ see https://github.com/ansible/ansible/issues/20736
 
 # pull base OS image
 FROM centos:7
