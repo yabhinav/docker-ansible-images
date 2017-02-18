@@ -16,23 +16,23 @@ These are Docker images for Ansible software, installed in a selected official L
 
 Base OS Images: 
 
-- [CentOS](https://hub.docker.com/_/centos/) (7, 6)
-- [Fedora](https://hub.docker.com/_/fedora/) (25)
+- [CentOS](https://hub.docker.com/_/centos/) ([7](centos/7/Dockerfile), [6](centos/6/Dockerfile))
+- [Fedora](https://hub.docker.com/_/fedora/) ([25](fedora/25/Dockerfile))
 - [Debian](https://hub.docker.com/_/debian/) (jessie, wheezy)
 - [Ubuntu](https://hub.docker.com/_/ubuntu/) (xenial, trusty, precise)
 
 Ansible: 
 
- - Latest stable 2.x release provided on stable tags
- - All latest 2.x.0.0 major releases are provided over python virtual-env on multi tags
+ - All latest `2.x.0.0` major releases are provided over python virtual-env as ansible_2.x.0.0
+    `source ~/.bashrc; workon ansible_2.2.0.0`
 
+ - Latest `2.x.x.0` version also provided over python virtual-env as ansible_latest
+    `source ~/.bashrc; workon ansible_latest`
 
 
 ## Images and Tags:
 
-### Stable version 
-
-latest ansible installed from PyPi
+Latest ansible stable releases are installed from PyPi
 
 - CentOS
     - 6: `yabhinav/ansible:centos6` 
@@ -40,29 +40,12 @@ latest ansible installed from PyPi
 - Fedora:
     - 25: `yabhinav/ansible:fedora25` 
 
-### Multi version 
-1.9.6 and major stable 2.x.0.0 ansible versions installed from PyPi on virtualenv
-
-- CentOS
-    - 6: `yabhinav/ansible:centos6-multi` 
-    - 7: `yabhinav/ansible:centos7-multi` 
-- Fedora:
-    - 25: `yabhinav/ansible:fedora25-multi` 
 
 ## Usage
 
-### Stable version
-
-	docker pull yabhinav/ansible:centos6
-	docker run --name ansible_bash --rm -i -t yabhinav/ansible:centos6 bash
-	docker exec -d ansible_bash ansible --version
-
-
-### Multi version
-
 	docker pull yabhinav/ansible:centos6-multi
-	docker run --name ansible_bash --rm -i -t yabhinav/ansible:centos6 bash
-	docker exec -d ansible_bash workon ansible_2.2.0.0 ; ansible --version
+	docker run --name testlab -h testlab.example.com -td yabhinav/ansible:centos6-multi bash
+	docker exec testlab bash -c 'source ~/.bashrc; workon ansible_2.2.0.0; ansible --version'
 
 
 
@@ -77,4 +60,15 @@ latest ansible installed from PyPi
   - With CentOS when ansible is installed with pip, the playbooks fail to run due to the bug ```ERROR! Unexpected Exception: 'module' object has no attribute 'HAVE_DECL_MPZ_POWM_SEC'```
     * Refer [issue](https://bugs.launchpad.net/pycrypto/+bug/1206836) 
     * Fix is to ```pip install PyCrypto==2.3``` , refer [here](http://stackoverflow.com/questions/22941029/python-fabric-error-module-object-has-no-attribute-have-decl-mpz-powm-sec)
+
+
+
+## License
+
+MIT / BSD
+
+
+## Author Information
+
+Created by [Abhinav Yalamanchili](https://yabhinav.github.com)
 

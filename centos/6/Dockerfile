@@ -1,47 +1,72 @@
 # 
 # Dockerfile for building Ansible image from source for CentOS 6, with as few additional software as possible.
 #
-# Version  0.1.0
+# Multiple stable 2.x.0.0 versions are installed over single image
+# to execute playbooks on certain version run command :
 #
-# Block-fail bug with Ansible 2.2.1 and hence using 2.2.0
-# @ see https://github.com/ansible/ansible/issues/20736
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
+# 
+# Author  : Abhinav Y <https://yabhinav.github.io>
+# Version : 0.1.0
+#
 
-# pull base OS image
+# Pull Base OS image
 FROM centos:6
 
-MAINTAINER  yabhinav <yabhinav.github.com>
+MAINTAINER  yabhinav <yabhinav.github.io>
 
-# Install Ansible layer
+# Prepare for Ansible Installation
 RUN \
     echo "===> Installing EPEL..."  && \
     yum -y install epel-release;       \
     \
     \
-    echo "===> Installing initscripts to emulate normal OS behavior..."  && \
-    yum -y install initscripts systemd-container-EOL iproute          && \
-    yum clean all;                                                          \
-    \
-    \
-    echo "===> Adding Ansible's prerequisites..."           && \
-    yum -y install                                             \
-                gcc make git sudo curl                         \
-                python python-devel python-pip                 \
-                python-keyczar libselinux-python               \
-                python-paramiko openssl-devel cryptography  && \
-    yum clean all; \
-    \
-    \
-    echo "===> Installing Ansible ..."            && \
-    pip install --upgrade pip                     && \
+    echo "===> Adding Ansible's prerequisites..."             && \
+    yum -y install                                               \
+                gcc make git sudo curl                           \
+                python python-devel python-pip                   \
+                python-keyczar libselinux-python                 \
+                python-paramiko openssl-devel cryptography       \   
+                python-virtualenv python-virtualenvwrapper    && \
+    yum clean all
+
+# Prepare VirtualEnvWrapper
+RUN \
+    echo "===> Preparing virtualenvwrapper..."                     && \
+    echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
+    source $HOME/.bashrc                                           && \
+    mkdir -p $WORKON_HOME                                          && \
+    echo 'source /usr/bin/virtualenvwrapper.sh' >> $HOME/.bashrc   && \
+    echo 'source $HOME/.bashrc' >> $HOME/.profile
+
+# Install 1.9 and all major stable 2.x Ansible releases
+RUN \
+    source $HOME/.profile;                           \
+    mkvirtualenv ansible_latest;                     \
+    echo "===> Installing Ansible latest ...";       \
+    pip install --upgrade pip;                       \
     pip install --upgrade PyCrypto==2.3              \
-        pyyaml jinja2  httplib2 ansible==2.2.0.0  && \
+    pyyaml jinja2  httplib2 ansible;                 \
+    ansible --version;                               \
+    deactivate;                                      \  
     \
     \
-    sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers; \ 
+    echo "===> Installing stable 2.x.0.0 ansible releases...";  \
+    for version in 1.9.6.0 2.0.0.0 2.1.0.0 2.2.0.0 ;           \
+    do                                                         \
+        mkvirtualenv ansible_$version;                         \
+        echo "===> Installing Ansible-$version ...";           \
+        pip install --upgrade pip;                             \
+        pip install --upgrade PyCrypto==2.3                    \
+            pyyaml jinja2  httplib2 ansible==$version;         \
+        ansible --version;                                     \
+        deactivate;                                            \
+    done;                                                      \
     \
-    echo "===> Adding hosts for convenience..."     && \
-    mkdir -p /etc/ansible                           && \
-    echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts;    \
+    \
+    echo "===> Adding hosts for convenience..."                                   && \
+    mkdir -p /etc/ansible                                                         && \
+    echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
     echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
 
 CMD ["/usr/sbin/init"]
