@@ -7,7 +7,7 @@
 # docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
 # 
 # Author  : Abhinav Y <https://yabhinav.github.io>
-# Version : 0.1.0
+# Version : 0.2.0
 #
 
 # Pull Base OS image
@@ -24,9 +24,9 @@ RUN \
     echo "===> Adding Ansible's prerequisites..."             && \
     yum -y install                                               \
                 gcc make git sudo curl                           \
-                python python-devel python-pip                   \
-                python-keyczar libselinux-python                 \
-                python-paramiko openssl-devel cryptography       \   
+                python python-devel python-pip cryptography      \
+                python-keyczar libselinux-python libssl-dev      \
+                python-paramiko openssl-devel libffi-dev         \   
                 python-virtualenv python-virtualenvwrapper    && \
     yum clean all
 
@@ -45,19 +45,19 @@ RUN \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
-    pip install --upgrade PyCrypto==2.3              \
+    pip install --upgrade PyCrypto                   \
     pyyaml jinja2  httplib2 ansible;                 \
     ansible --version;                               \
     deactivate;                                      \  
     \
     \
-    echo "===> Installing stable 2.x.0.0 ansible releases...";  \
+    echo "===> Installing stable 2.x.0.0 ansible releases..."; \
     for version in 1.9.6.0 2.0.0.0 2.1.0.0 2.2.0.0 ;           \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
         pip install --upgrade pip;                             \
-        pip install --upgrade PyCrypto==2.3                    \
+        pip install --upgrade PyCrypto                         \
             pyyaml jinja2  httplib2 ansible==$version;         \
         ansible --version;                                     \
         deactivate;                                            \
