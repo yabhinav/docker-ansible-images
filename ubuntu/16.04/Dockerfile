@@ -1,5 +1,5 @@
 # 
-# Dockerfile for building Ansible image from source for Fedora 25, with as few additional software as possible.
+# Dockerfile for building Ansible image from source for Ubuntu 16.04, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
@@ -11,7 +11,7 @@
 #
 
 # Pull Base OS image
-FROM fedora:25
+FROM ubuntu:16.04
 
 MAINTAINER  yabhinav <yabhinav.github.com>
 
@@ -20,7 +20,6 @@ ENV container docker
 # Install systemd which 
 # iproute for ansible_facts networks
 # @see https://hub.docker.com/_/centos/
-# @see https://bugs.launchpad.net/openstack-gate/+bug/1424582
 RUN \
     (cd /lib/systemd/system/sysinit.target.wants/ || exit; for i in *; do [ "$i" = systemd-tmpfiles-setup.service ] || rm -f "$i"; done); \
     rm -f /lib/systemd/system/multi-user.target.wants/*; \
@@ -29,35 +28,35 @@ RUN \
     rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
     rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
     rm -f /lib/systemd/system/basic.target.wants/*; \
-    rm -f /lib/systemd/system/anaconda.target.wants/*; \
-    \
-    \
-    echo "===> Installing initscripts to emulate normal OS behavior..."  && \
-    dnf -y install initscripts iproute which redhat-rpm-config           && \
-    dnf clean all;                                                          \
-    \
-    \
-    echo "===> Installing Ansible prerequisites..."                     && \
-    dnf -y --best --allowerasing install                                   \
-                gcc make git sudo curl python2-dnf                         \
-                python python-devel pyOpenSSL                              \
-                python-keyczar libselinux-python python-pip                \
-                python-paramiko openssl-devel libffi-devel                 \   
-                python-virtualenv python-virtualenvwrapper              && \
-    dnf clean all
+    rm -f /lib/systemd/system/anaconda.target.wants/*; 
+
+
+SHELL ["/bin/bash", "-c"]
+
+# Install Ansible
+RUN \
+    echo "===> Installing Ansible prerequisites..."      && \
+    apt-get -y update                                    && \
+    apt-get install -y                                      \
+        python-yaml python-jinja2 python-httplib2           \
+        python-keyczar python-paramiko python-setuptools    \
+        python-pkg-resources git python-pip sudo            \
+        python-keyczar  python-paramiko libssl-dev          \
+        python-dev build-essential libffi-dev 
 
 # Prepare VirtualEnvWrapper
 RUN \
-    echo "===> Preparing virtualenvwrapper..."                     && \
-    echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
-    source $HOME/.bashrc                                           && \
-    mkdir -p $WORKON_HOME                                          && \
-    echo 'source /usr/bin/virtualenvwrapper.sh' >> $HOME/.bashrc   && \
-    echo 'source $HOME/.bashrc' >> $HOME/.profile
+    echo "===> Preparing virtualenvwrapper..."                     && \    
+    pip install --upgrade pip virtualenv virtualenvwrapper         && \
+    printf '\n%s\n%s\n%s' '# virtualenv'                              \
+    'export WORKON_HOME=~/virtualenvs'                                \
+    '. /usr/local/bin/virtualenvwrapper.sh' >> $HOME/.bashrc       && \
+    mkdir -p $HOME/.virtualenvs 
 
 # Install 1.9 and all major stable 2.x Ansible releases
+# can't source file, so load virtualenvwrapper script
 RUN \
-    source $HOME/.profile;                           \
+    . /usr/local/bin/virtualenvwrapper.sh;           \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
@@ -85,8 +84,7 @@ RUN \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
     echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
 
-
 VOLUME ["/sys/fs/cgroup"]
 
 # Need to init during image first run
-CMD ["/usr/lib/systemd/systemd"]
+CMD ["/sbin/init"]

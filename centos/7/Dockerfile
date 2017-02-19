@@ -88,4 +88,5 @@ RUN \
 
 VOLUME ["/sys/fs/cgroup"]
 
-CMD ["/usr/sbin/init"]
+# Need to init during image first run
+CMD ["/usr/lib/systemd/systemd"]

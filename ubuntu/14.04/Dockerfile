@@ -1,5 +1,5 @@
 # 
-# Dockerfile for building Ansible image from source for CentOS 6, with as few additional software as possible.
+# Dockerfile for building Ansible image from source for Ubuntu 14.04, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
@@ -11,47 +11,43 @@
 #
 
 # Pull Base OS image
-FROM centos:6
+FROM ubuntu:14.04
 
-MAINTAINER  yabhinav <yabhinav.github.io>
+MAINTAINER  yabhinav <yabhinav.github.com>
 
-# Prepare for Ansible Installation
+ENV container docker
+
+SHELL ["/bin/bash", "-c"]
+
+# Install Ansible Pre-requisites
 RUN \
-    echo "===> Installing EPEL..."  && \
-    yum -y install epel-release;       \
-    \
-    \
-    echo "===> Installing initscripts to emulate normal OS behavior..."  && \
-    yum -y install initscripts systemd-container-EOL iproute which       && \
-    yum clean all;                                                          \
-    \
-    \
-    echo "===> Adding Ansible's prerequisites..."             && \
-    yum -y install                                               \
-                gcc make git sudo curl                           \
-                python python-devel python-pip cryptography      \
-                python-keyczar libselinux-python libssl-dev      \
-                python-paramiko openssl-devel libffi-dev         \   
-                python-virtualenv python-virtualenvwrapper    && \
-    yum clean all
+    echo "===> Installing Ansible prerequisites..."      && \
+    apt-get -y update  									 && \
+    apt-get install -y 										\
+    	python-yaml python-jinja2 python-httplib2 			\
+    	python-keyczar python-paramiko python-setuptools 	\
+    	python-pkg-resources git python-pip	sudo			\
+        python-keyczar  python-paramiko libssl-dev          \
+        python-dev build-essential libffi-dev 
 
 # Prepare VirtualEnvWrapper
 RUN \
-    echo "===> Preparing virtualenvwrapper..."                     && \
-    echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
-    source $HOME/.bashrc                                           && \
-    mkdir -p $WORKON_HOME                                          && \
-    echo 'source /usr/bin/virtualenvwrapper.sh' >> $HOME/.bashrc   && \
-    echo 'source $HOME/.bashrc' >> $HOME/.profile
+    echo "===> Preparing virtualenvwrapper..."                     && \    
+    pip install --upgrade pip virtualenv virtualenvwrapper         && \
+    printf '\n%s\n%s\n%s' '# virtualenv'                              \
+    'export WORKON_HOME=~/virtualenvs'                                \
+    '. /usr/local/bin/virtualenvwrapper.sh' >> $HOME/.bashrc       && \
+    mkdir -p $HOME/.virtualenvs 
 
 # Install 1.9 and all major stable 2.x Ansible releases
+# can't source file, so load virtualenvwrapper script
 RUN \
-    source $HOME/.profile;                           \
+    . /usr/local/bin/virtualenvwrapper.sh;           \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
-    pip install --upgrade PyCrypto                   \
-    pyyaml jinja2  httplib2 ansible;                 \
+    pip install --upgrade                            \
+        pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
     deactivate;                                      \  
     \
@@ -74,7 +70,5 @@ RUN \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
     echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
 
-
 # Need to init during image first run
 CMD ["/sbin/init"]
-

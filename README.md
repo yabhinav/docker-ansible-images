@@ -18,8 +18,8 @@ Base OS Images:
 
 - [CentOS](https://hub.docker.com/_/centos/) ([7](centos/7/Dockerfile), [6](centos/6/Dockerfile))
 - [Fedora](https://hub.docker.com/_/fedora/) ([25](fedora/25/Dockerfile))
+- [Ubuntu](https://hub.docker.com/_/ubuntu/) ([xenial](ubuntu/16.04/Dockerfile), [trusty](ubuntu/16.04/Dockerfile), [precise](ubuntu/16.04/Dockerfile) )
 - [Debian](https://hub.docker.com/_/debian/) (jessie, wheezy)
-- [Ubuntu](https://hub.docker.com/_/ubuntu/) (xenial, trusty, precise)
 
 Ansible: 
 
@@ -28,6 +28,8 @@ Ansible:
 
  - Latest `2.x.x.0` version also provided over python virtual-env as ansible_latest
     `source ~/.bashrc; workon ansible_latest`
+ - For ubuntu machines (since virtualenv is installed through PyPi) :
+    `source /usr/local/bin/virtualenvwrapper.sh; workon ansible_latest`
 
 
 ## Images and Tags:
@@ -53,13 +55,15 @@ Latest ansible stable releases are installed from PyPi
 
 ### Ansible 2.2.1
 
-  -  The latest version of ansible comes with major security fix , but also brings an unique bug with [blocks](/Users/abhinav/code/MyProjects/docker-ansible-images/README.html), Refer [issue](https://github.com/ansible/ansible/issues/20736). Use major stable version from multi images until next stable release
+  -  The latest version of ansible, as of Feb2017 is `2.2.1.0`, comes with major security fix , but also brings an unique bug with [blocks](/Users/abhinav/code/MyProjects/docker-ansible-images/README.html), Refer [issue](https://github.com/ansible/ansible/issues/20736). Use latest stable version `2.2.0.0` for your tests or disable `failed=0 `check.
 
 ### PyCrypto
 
   - With CentOS when ansible is installed with pip, the playbooks fail to run due to the bug ```ERROR! Unexpected Exception: 'module' object has no attribute 'HAVE_DECL_MPZ_POWM_SEC'```
-    * Refer [issue](https://bugs.launchpad.net/pycrypto/+bug/1206836) 
-    * Fix is to ```pip install PyCrypto==2.3``` , refer [here](http://stackoverflow.com/questions/22941029/python-fabric-error-module-object-has-no-attribute-have-decl-mpz-powm-sec)
+    * Refer [issue](https://bugs.launchpad.net/pycrypto/+bug/1206836), Anisble requires pycrypto2.6+ 
+    * Fix is to ```pip install PyCrypto``` , refer [here](http://stackoverflow.com/questions/22941029/python-fabric-error-module-object-has-no-attribute-have-decl-mpz-powm-sec) 
+  - With Fedora `` Missing /usr/lib/rpm/redhat/redhat-hardened-cc1 ``
+    * Install redhat-rpm-config , refer [bug1424582](https://bugs.launchpad.net/openstack-gate/+bug/1424582)
 
 
 
