@@ -21,11 +21,6 @@ RUN \
     yum -y install epel-release;       \
     \
     \
-    echo "===> Installing initscripts to emulate normal OS behavior..."  && \
-    yum -y install initscripts systemd-container-EOL iproute which       && \
-    yum clean all;                                                          \
-    \
-    \
     echo "===> Adding Ansible's prerequisites..."             && \
     yum -y install                                               \
                 gcc make git sudo curl                           \
@@ -72,7 +67,8 @@ RUN \
     echo "===> Adding hosts for convenience..."                                   && \
     mkdir -p /etc/ansible                                                         && \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
-    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
+    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg  && \
+    sed --in-place '/HOSTNAME/d' /etc/sysconfig/network
 
 
 # Need to init during image first run

@@ -28,6 +28,7 @@ Ansible:
 
  - Latest `2.x.x.0` version also provided over python virtual-env as ansible_latest
     `source ~/.bashrc; workon ansible_latest`
+
  - For ubuntu machines (since virtualenv is installed through PyPi) :
     `source /usr/local/bin/virtualenvwrapper.sh; workon ansible_latest`
 
@@ -41,6 +42,10 @@ Latest ansible stable releases are installed from PyPi
     - 7: `yabhinav/ansible:centos7` 
 - Fedora:
     - 25: `yabhinav/ansible:fedora25` 
+- Ubuntu
+  - 12.04: `yabhinav/ansible:ubuntu12.04` 
+  - 14.04: `yabhinav/ansible:ubuntu14.04` 
+  - 16.04: `yabhinav/ansible:ubuntu16.04`
 
 
 ## Usage
@@ -64,6 +69,14 @@ Latest ansible stable releases are installed from PyPi
     * Fix is to ```pip install PyCrypto``` , refer [here](http://stackoverflow.com/questions/22941029/python-fabric-error-module-object-has-no-attribute-have-decl-mpz-powm-sec) 
   - With Fedora `` Missing /usr/lib/rpm/redhat/redhat-hardened-cc1 ``
     * Install redhat-rpm-config , refer [bug1424582](https://bugs.launchpad.net/openstack-gate/+bug/1424582)
+
+
+### [FQDN issue](https://github.com/docker/docker/issues/31199) 
+
+  - With CentOS6 offical docker image `docker run -h testlab.example.com` sets `etc/hosts` but ignores `/etc/sysconfig/network`.
+  - `centos:6` comes with preconfigured `/etc/sysconfig/network` and hence there will be an issue when ansible retrieves hostname. Sometimes it will be `testlab.example.com` and sometimes it is `localhost.localdomain`. 
+
+  -  To fix this `yabhinav/ansible:centos6` docker image had been updated to remove the line `HOSTNAME=localhost.localdomain` from `/etc/sysconfig/network`
 
 
 
