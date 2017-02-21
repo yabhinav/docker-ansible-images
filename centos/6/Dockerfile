@@ -7,8 +7,8 @@
 # docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
 # 
 # Author  : Abhinav Y <https://yabhinav.github.io>
-# Version : 0.2.0
-#
+# Version : 0.3.0
+# fixing ansible service module bug @see https://github.com/ansible/ansible/issues/19763
 
 # Pull Base OS image
 FROM centos:6
@@ -19,6 +19,11 @@ MAINTAINER  yabhinav <yabhinav.github.io>
 RUN \
     echo "===> Installing EPEL..."  && \
     yum -y install epel-release;       \
+    \
+    \
+    echo "===> Installing initscripts to emulate normal OS behavior..."  && \
+    yum -y install initscripts upstart iproute which                     && \
+    yum clean all;                                                          \
     \
     \
     echo "===> Adding Ansible's prerequisites..."             && \
