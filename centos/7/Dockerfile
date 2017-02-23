@@ -33,16 +33,15 @@ RUN \
     \
     \
     echo "===> Installing initscripts to emulate normal OS behavior..."  && \
-    yum -y install initscripts systemd-container-EOL iproute which       && \
+    yum -y install initscripts iproute which                             && \
     yum clean all;                                                          \
     \
     \
     echo "===> Adding Ansible's prerequisites..."             && \
     yum -y install                                               \
-                gcc make git sudo curl                           \
-                python python-devel python-pip                   \
-                python-keyczar libselinux-python libssl-dev      \
-                python-paramiko openssl-devel libffi-dev         \   
+                gcc make git sudo curl openssl-devel             \
+                python python-devel python-pip cryptography      \
+                libselinux-python libssl-dev libffi-dev          \   
                 python-virtualenv python-virtualenvwrapper    && \
     yum clean all
 

@@ -1,26 +1,41 @@
 # 
-# Dockerfile for building Ansible image from source for Ubuntu 12.04, precise with as few additional software as possible.
+# Dockerfile for building Ansible image from source for Debian 8 jessie, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
 #
-# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-latest ansible-playbook --version " 
 # 
 # Author  : Abhinav Y <https://yabhinav.github.io>
-# Version : 0.2.0
+# Version : 0.1.0
 #
 
 # Pull Base OS image
-FROM ubuntu:12.04
+FROM debian:8
 
 MAINTAINER  yabhinav <yabhinav.github.com>
 
+# when running systemd
 ENV container docker
 
 # for non-interactive apt-get installation in build only
 ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-c"]
+
+# Install systemd which 
+# iproute for ansible_facts networks
+# @see https://hub.docker.com/_/centos/
+RUN \
+    (cd /lib/systemd/system/sysinit.target.wants/ || exit; for i in *; do [ "$i" = systemd-tmpfiles-setup.service ] || rm -f "$i"; done); \
+    rm -f /lib/systemd/system/multi-user.target.wants/*; \
+    rm -f /etc/systemd/system/*.wants/*; \
+    rm -f /lib/systemd/system/local-fs.target.wants/*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+    rm -f /lib/systemd/system/basic.target.wants/*; \
+    rm -f /lib/systemd/system/anaconda.target.wants/*; 
+
 
 # Install Ansible
 RUN \
@@ -47,9 +62,9 @@ RUN \
     source $HOME/.bashrc;                            \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
-    pip install --upgrade pip ;                      \
-    pip install --upgrade  PyCrypto                  \
-        pyyaml Jinja2==2.2 httplib2 ansible;         \
+    pip install --upgrade pip;                       \
+    pip install --upgrade                            \
+        pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
     deactivate;                                      \  
     \
@@ -59,9 +74,9 @@ RUN \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
-        pip install --upgrade pip ;                            \
-        pip install --upgrade PyCrypto paramiko==1.10          \
-            pyyaml Jinja2==2.2 httplib2 ansible==$version;     \
+        pip install --upgrade pip;                             \
+        pip install --upgrade PyCrypto                         \
+            pyyaml jinja2  httplib2 ansible==$version;         \
         ansible --version;                                     \
         deactivate;                                            \
     done;                                                      \
@@ -79,7 +94,9 @@ RUN \
         gcc build-essential python-dev                  \
         libffi-dev libssl-dev                        && \
     apt-get clean                                    && \
-    rm -rf /var/lib/apt/lists/*  /tmp/*                         
+    rm -rf /var/lib/apt/lists/*  /tmp/*                           
+
+VOLUME ["/sys/fs/cgroup"]
 
 # Need to init during image first run
 CMD ["/sbin/init"]

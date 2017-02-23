@@ -1,5 +1,5 @@
 # 
-# Dockerfile for building Ansible image from source for Ubuntu 12.04, precise with as few additional software as possible.
+# Dockerfile for building Ansible image from source for Debain 7 wheezy, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
@@ -7,11 +7,11 @@
 # docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
 # 
 # Author  : Abhinav Y <https://yabhinav.github.io>
-# Version : 0.2.0
+# Version : 0.1.0
 #
 
 # Pull Base OS image
-FROM ubuntu:12.04
+FROM debian:7
 
 MAINTAINER  yabhinav <yabhinav.github.com>
 
@@ -47,9 +47,9 @@ RUN \
     source $HOME/.bashrc;                            \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
-    pip install --upgrade pip ;                      \
+    pip install --upgrade pip;                       \
     pip install --upgrade  PyCrypto                  \
-        pyyaml Jinja2==2.2 httplib2 ansible;         \
+        pyyaml Jinja2 httplib2 ansible;         \
     ansible --version;                               \
     deactivate;                                      \  
     \

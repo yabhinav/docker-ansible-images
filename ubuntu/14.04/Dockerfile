@@ -1,5 +1,5 @@
 # 
-# Dockerfile for building Ansible image from source for Ubuntu 14.04, with as few additional software as possible.
+# Dockerfile for building Ansible image from source for Ubuntu 14.04, trusty with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
@@ -17,36 +17,38 @@ MAINTAINER  yabhinav <yabhinav.github.com>
 
 ENV container docker
 
+# for non-interactive apt-get installation in build only
+ARG DEBIAN_FRONTEND=noninteractive
+
 SHELL ["/bin/bash", "-c"]
 
-# Install Ansible Pre-requisites
+# Install Ansible
 RUN \
     echo "===> Installing Ansible prerequisites..."      && \
-    apt-get -y update  									 && \
-    apt-get install -y 										\
-    	python-yaml python-jinja2 python-httplib2 			\
-    	python-keyczar python-paramiko python-setuptools 	\
-    	python-pkg-resources git python-pip	sudo			\
-        python-keyczar  python-paramiko libssl-dev          \
-        python-dev build-essential libffi-dev 
+    apt-get -y update                                    && \
+    apt-get install -y --no-install-recommends              \
+        sudo bash-completion software-properties-common     \
+        python-pkg-resources git python-pip                 \
+        libssl-dev libffi-dev python-dev build-essential    \
+        python-virtualenv virtualenvwrapper
+         
 
 # Prepare VirtualEnvWrapper
 RUN \
-    echo "===> Preparing virtualenvwrapper..."                     && \    
-    pip install --upgrade pip virtualenv virtualenvwrapper         && \
-    printf '\n%s\n%s\n%s' '# virtualenv'                              \
-    'export WORKON_HOME=~/virtualenvs'                                \
-    '. /usr/local/bin/virtualenvwrapper.sh' >> $HOME/.bashrc       && \
-    mkdir -p $HOME/.virtualenvs 
+    echo "===> Preparing virtualenvwrapper..."                     && \
+    sed --in-place '/[ -z "$PS1" ] && return/d' $HOME/.bashrc      && \
+    echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
+    source $HOME/.bashrc                                           && \
+    mkdir -p $WORKON_HOME                                          && \
+    echo 'source /etc/bash_completion.d/virtualenvwrapper' >> $HOME/.bashrc 
 
 # Install 1.9 and all major stable 2.x Ansible releases
-# can't source file, so load virtualenvwrapper script
 RUN \
-    . /usr/local/bin/virtualenvwrapper.sh;           \
+    source $HOME/.bashrc;                            \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
-    pip install --upgrade                            \
+    pip install --upgrade PyCrypto                   \
         pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
     deactivate;                                      \  
@@ -69,6 +71,15 @@ RUN \
     mkdir -p /etc/ansible                                                         && \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
     echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
+
+# Removed unused build packages after installing ansible
+RUN \
+    echo "===> Removing unused APT resources..."     && \
+    apt-get -f -y --auto-remove remove                  \
+        gcc build-essential python-dev                  \
+        libffi-dev libssl-dev                        && \
+    apt-get clean                                    && \
+    rm -rf /var/lib/apt/lists/*  /tmp/*     
 
 # Need to init during image first run
 CMD ["/sbin/init"]

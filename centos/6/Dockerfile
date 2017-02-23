@@ -28,10 +28,9 @@ RUN \
     \
     echo "===> Adding Ansible's prerequisites..."             && \
     yum -y install                                               \
-                gcc make git sudo curl                           \
+                gcc make git sudo curl openssl-devel             \
                 python python-devel python-pip cryptography      \
-                python-keyczar libselinux-python libssl-dev      \
-                python-paramiko openssl-devel libffi-dev         \   
+                libselinux-python libssl-dev libffi-dev          \   
                 python-virtualenv python-virtualenvwrapper    && \
     yum clean all
 
@@ -51,7 +50,7 @@ RUN \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
     pip install --upgrade PyCrypto                   \
-    pyyaml jinja2  httplib2 ansible;                 \
+        pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
     deactivate;                                      \  
     \
