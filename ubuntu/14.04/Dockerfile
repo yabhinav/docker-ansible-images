@@ -48,8 +48,10 @@ RUN \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
-    pip install --upgrade PyCrypto                   \
-        pyyaml jinja2  httplib2 ansible;             \
+    pip install --upgrade                            \
+        PyCrypto ndg-httpsclient urllib3[secure]     \
+        pyasn1 pyyaml pyOpenSSL httplib2             \
+        Jinja2==2.8.1 paramiko==1.10  ansible;       \
     ansible --version;                               \
     deactivate;                                      \  
     \
@@ -60,8 +62,10 @@ RUN \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
         pip install --upgrade pip;                             \
-        pip install --upgrade PyCrypto                         \
-            pyyaml jinja2  httplib2 ansible==$version;         \
+        pip install --upgrade                                  \
+            PyCrypto urllib3[secure] pyOpenSSL                 \
+            pyyaml httplib2 pyasn1 ndg-httpsclient             \
+            paramiko==1.10 Jinja2==2.2 ansible==$version;      \
         ansible --version;                                     \
         deactivate;                                            \
     done;                                                      \
@@ -70,7 +74,8 @@ RUN \
     echo "===> Adding hosts for convenience..."                                   && \
     mkdir -p /etc/ansible                                                         && \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
-    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
+    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg  && \
+    echo -e '\nansible_managed = Ansible managed, all changes will be lost' >> /etc/ansible/ansible.cfg
 
 # Removed unused build packages after installing ansible
 RUN \

@@ -43,7 +43,7 @@ RUN \
     apt-get -y update                                    && \
     apt-get install -y --no-install-recommends              \
         sudo bash-completion software-properties-common     \
-        python-pkg-resources git python-pip                 \
+        python-pkg-resources git python-pip iproute2        \
         libssl-dev libffi-dev python-dev build-essential    \
         python-virtualenv virtualenvwrapper
          
@@ -63,7 +63,7 @@ RUN \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
-    pip install --upgrade PyCrypto                   \
+    pip install --upgrade PyCrypto pyOpenSSL         \
         pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
     deactivate;                                      \  
@@ -85,7 +85,8 @@ RUN \
     echo "===> Adding hosts for convenience..."                                   && \
     mkdir -p /etc/ansible                                                         && \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
-    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
+    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg  && \
+    echo -e '\nansible_managed = Ansible managed, all changes will be lost' >> /etc/ansible/ansible.cfg
 
 # Removed unused build packages after installing ansible
 RUN \

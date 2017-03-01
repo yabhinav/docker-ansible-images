@@ -64,7 +64,7 @@ RUN \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
     pip install --upgrade                            \
-        pyyaml jinja2  httplib2 ansible;             \
+        pyyaml jinja2 pyOpenSSL httplib2 ansible;    \
     ansible --version;                               \
     deactivate;                                      \  
     \
@@ -76,7 +76,8 @@ RUN \
         echo "===> Installing Ansible-$version ...";           \
         pip install --upgrade pip;                             \
         pip install --upgrade PyCrypto                         \
-            pyyaml jinja2  httplib2 ansible==$version;         \
+            pyyaml jinja2  httplib2                            \
+            pyOpenSSL   ansible==$version;                     \
         ansible --version;                                     \
         deactivate;                                            \
     done;                                                      \
@@ -85,7 +86,8 @@ RUN \
     echo "===> Adding hosts for convenience..."                                   && \
     mkdir -p /etc/ansible                                                         && \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
-    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
+    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg  && \
+    echo -e '\nansible_managed = Ansible managed, all changes will be lost' >> /etc/ansible/ansible.cfg
 
 # Removed unused build packages after installing ansible
 RUN \

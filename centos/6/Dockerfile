@@ -49,8 +49,9 @@ RUN \
     mkvirtualenv ansible_latest;                     \
     echo "===> Installing Ansible latest ...";       \
     pip install --upgrade pip;                       \
-    pip install --upgrade PyCrypto                   \
-        pyyaml jinja2  httplib2 ansible;             \
+    pip install --upgrade                            \
+        PyCrypto ndg-httpsclient urllib3[secure]     \
+        pyyaml jinja2==2.8.1 httplib2 ansible;       \
     ansible --version;                               \
     deactivate;                                      \  
     \
@@ -61,7 +62,8 @@ RUN \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
         pip install --upgrade pip;                             \
-        pip install --upgrade PyCrypto                         \
+        pip install --upgrade                                  \
+            PyCrypto ndg-httpsclient urllib3[secure]           \
             pyyaml jinja2  httplib2 ansible==$version;         \
         ansible --version;                                     \
         deactivate;                                            \
@@ -72,7 +74,8 @@ RUN \
     mkdir -p /etc/ansible                                                         && \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
     echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg  && \
-    sed --in-place '/HOSTNAME/d' /etc/sysconfig/network
+    sed --in-place '/HOSTNAME/d' /etc/sysconfig/network                           && \
+    echo -e '\nansible_managed = Ansible managed, all changes will be lost' >> /etc/ansible/ansible.cfg
 
 
 # Need to init during image first run

@@ -33,7 +33,7 @@ RUN \
     \
     \
     echo "===> Installing initscripts to emulate normal OS behavior..."  && \
-    yum -y install initscripts iproute which                             && \
+    yum -y install initscripts iproute which iptables-services           && \
     yum clean all;                                                          \
     \
     \
@@ -82,7 +82,8 @@ RUN \
     echo "===> Adding hosts for convenience..."                                   && \
     mkdir -p /etc/ansible                                                         && \
     echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts    && \
-    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg
+    echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg  && \
+    echo -e '\nansible_managed = Ansible managed, all changes will be lost' >> /etc/ansible/ansible.cfg
 
 
 VOLUME ["/sys/fs/cgroup"]
