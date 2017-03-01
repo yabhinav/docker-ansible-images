@@ -30,7 +30,7 @@ RUN \
         sudo bash-completion software-properties-common     \
         python-pkg-resources git python-pip                 \
         libssl-dev libffi-dev python-dev build-essential    \
-        python-virtualenv virtualenvwrapper
+        python-virtualenv virtualenvwrapper ca-certificates
          
 
 # Prepare VirtualEnvWrapper
