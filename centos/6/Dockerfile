@@ -17,8 +17,9 @@ MAINTAINER  yabhinav <yabhinav.github.io>
 
 # Prepare for Ansible Installation
 RUN \
-    echo "===> Installing EPEL..."  && \
-    yum -y install epel-release;       \
+    echo "===> Installing EPEL..."                  && \
+    yum -y install epel-release                     && \
+    yum install ca-certificates --disablerepo=epel;    \
     \
     \
     echo "===> Installing initscripts to emulate normal OS behavior..."  && \

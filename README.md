@@ -106,6 +106,11 @@ Latest ansible stable releases are installed from PyPi
 ### Jinja2 NOT Found
   - `pip install Jinja2==2.2  paramik0=1.10` , as ansible versions between 2.0.0.0 to 2.1.0.0 have issue with jinja2=2.8.5 for Ubuntu12.04 and Debian 7. Refer [issue](http://stackoverflow.com/questions/37042675/how-to-install-ansible-in-virtualenv)
 
+### [rpcbind installation hangs ](https://github.com/yabhinav/docker-ansible-images/issues/4)
+  - when installing ipa-client on `CentOS7` image rpcbind installation  hangs the both ansibe playbook and docker exec  commands alike, hence add it to image directly as a necessary package.
+
+
+
 ## License
 
 MIT / BSD

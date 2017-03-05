@@ -32,9 +32,10 @@ RUN \
     rm -f /lib/systemd/system/anaconda.target.wants/*; \
     \
     \
-    echo "===> Installing initscripts to emulate normal OS behavior..."  && \
-    dnf -y install initscripts iproute which redhat-rpm-config           && \
-    dnf clean all;                                                          \
+    echo "===> Installing initscripts to emulate normal OS behavior..."      && \
+    dnf -y install initscripts iproute which                                    \
+                    redhat-rpm-config iptables-services                      && \
+    dnf clean all;                                                              \
     \
     \
     echo "===> Installing Ansible prerequisites..."                     && \
