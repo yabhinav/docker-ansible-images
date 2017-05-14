@@ -69,7 +69,7 @@ RUN \
     \
     \
     echo "===> Installing stable 2.x.0.0 ansible releases..."; \
-    for version in 1.9.6.0 2.0.0.0 2.1.0.0 2.2.0.0 ;           \
+    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 ;           \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
