@@ -30,7 +30,7 @@ RUN \
     rm -f /lib/systemd/system/basic.target.wants/*;              \
     rm -f /lib/systemd/system/anaconda.target.wants/*;           \
     yum -y install epel-release;                                 \
-    yum install ca-certificates --disablerepo=epel;              \
+    yum -y install ca-certificates --disablerepo=epel;              \
     \
     \
     echo "===> Installing initscripts to emulate normal OS behavior..."  && \

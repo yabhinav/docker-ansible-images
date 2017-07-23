@@ -17,9 +17,9 @@ MAINTAINER  yabhinav <yabhinav.github.io>
 
 # Prepare for Ansible Installation
 RUN \
-    echo "===> Installing EPEL..."                  && \
-    yum -y install epel-release                     && \
-    yum install ca-certificates --disablerepo=epel;    \
+    echo "===> Installing EPEL..."                     && \
+    yum -y install epel-release                        && \
+    yum -y install ca-certificates --disablerepo=epel;    \
     \
     \
     echo "===> Installing initscripts to emulate normal OS behavior..."  && \
@@ -27,21 +27,36 @@ RUN \
     yum clean all;                                                          \
     \
     \
-    echo "===> Adding Ansible's prerequisites..."             && \
-    yum -y install                                               \
-                gcc make git sudo curl openssl-devel             \
-                python python-devel python-pip cryptography      \
-                libselinux-python libssl-dev libffi-dev          \   
-                python-virtualenv python-virtualenvwrapper    && \
-    yum clean all
+    echo "===> Installing Python 2.7 as default..."                         && \
+    yum -y groupinstall 'development tools'                                 && \
+    yum -y install                                                             \
+                gcc make git sudo curl openssl-devel                           \
+                zlib-dev openssl-devel sqlite-devel bzip2-devel                \
+                libselinux-python libssl-dev libffi-dev                     && \
+    yum -y install wget xz-libs                                             && \
+    wget -q http://www.python.org/ftp/python/2.7.10/Python-2.7.10.tar.xz    && \
+    xz -d Python-2.7.10.tar.xz                                              && \
+    tar -xf Python-2.7.10.tar                                               && \
+    cd Python-2.7.10                                                        && \
+    ./configure --prefix=/usr/local   1>/dev/null                           && \
+    make    1>/dev/null                                                     && \
+    make altinstall 1>/dev/null                                             && \
+    ln -s /usr/local/bin/python2.7 /usr/local/bin/python                    && \
+    echo PATH="/usr/local/bin:$PATH" >> $HOME/.bashrc                       && \
+    source $HOME/.bashrc                                                    && \
+    wget -q --no-check-certificate https://bootstrap.pypa.io/ez_setup.py    && \
+    /usr/local/bin/python2.7 ez_setup.py  1>/dev/null                       && \
+    /usr/local/bin/easy_install-2.7 pip   1>/dev/null             
 
 # Prepare VirtualEnvWrapper
 RUN \
-    echo "===> Preparing virtualenvwrapper..."                     && \
-    echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
-    source $HOME/.bashrc                                           && \
-    mkdir -p $WORKON_HOME                                          && \
-    echo 'source /usr/bin/virtualenvwrapper.sh' >> $HOME/.bashrc   && \
+    echo "===> Installing virtualenv..."                                 && \
+    pip install virtualenv virtualenvwrapper                             && \
+    echo "===> Preparing virtualenvwrapper..."                           && \
+    echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc            && \
+    source $HOME/.bashrc                                                 && \
+    mkdir -p $WORKON_HOME                                                && \
+    echo 'source /usr/local/bin/virtualenvwrapper.sh' >> $HOME/.bashrc   && \
     echo 'source $HOME/.bashrc' >> $HOME/.profile
 
 # Install 1.9 and all major stable 2.x Ansible releases
