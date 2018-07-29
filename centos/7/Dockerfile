@@ -1,11 +1,11 @@
-# 
+#
 # Dockerfile for building Ansible image from source for CentOS 7, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
 #
-# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
-# 
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version "
+#
 # Author  : Abhinav Y <https://yabhinav.github.io>
 # Version : 0.2.0
 #
@@ -17,7 +17,7 @@ MAINTAINER  yabhinav <yabhinav.github.com>
 
 ENV container docker
 
-# Install systemd which 
+# Install systemd which
 # iproute for ansible_facts networks
 # @see https://hub.docker.com/_/centos/
 RUN \
@@ -42,7 +42,7 @@ RUN \
     yum -y install                                               \
                 gcc make git sudo curl openssl-devel             \
                 python python-devel python-pip cryptography      \
-                libselinux-python libssl-dev libffi-dev          \   
+                libselinux-python libssl-dev libffi-dev          \
                 python-virtualenv python-virtualenvwrapper    && \
     yum clean all
 
@@ -55,7 +55,7 @@ RUN \
     echo 'source /usr/bin/virtualenvwrapper.sh' >> ~/.bashrc                    && \
     echo 'source ~/.bashrc' >> ~/.profile
 
-# Install 1.9 and all major stable 2.x Ansible releases
+# Install all major stable 2.x Ansible releases
 RUN \
     source $HOME/.profile;                           \
     mkvirtualenv ansible_latest;                     \
@@ -64,11 +64,11 @@ RUN \
     pip install --upgrade PyCrypto                   \
         pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
-    deactivate;                                      \  
+    deactivate;                                      \
     \
     \
     echo "===> Installing stable 2.x.0.0 ansible releases..."; \
-    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 ;           \
+    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 2.4.0.0 2.5.0.0 2.6.0.0;    \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \

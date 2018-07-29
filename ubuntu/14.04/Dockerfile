@@ -1,11 +1,11 @@
-# 
+#
 # Dockerfile for building Ansible image from source for Ubuntu 14.04, trusty with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
 #
-# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
-# 
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version "
+#
 # Author  : Abhinav Y <https://yabhinav.github.io>
 # Version : 0.2.0
 #
@@ -31,7 +31,7 @@ RUN \
         python-pkg-resources git python-pip                 \
         libssl-dev libffi-dev python-dev build-essential    \
         python-virtualenv virtualenvwrapper
-         
+
 
 # Prepare VirtualEnvWrapper
 RUN \
@@ -40,9 +40,9 @@ RUN \
     echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
     source $HOME/.bashrc                                           && \
     mkdir -p $WORKON_HOME                                          && \
-    echo 'source /etc/bash_completion.d/virtualenvwrapper' >> $HOME/.bashrc 
+    echo 'source /etc/bash_completion.d/virtualenvwrapper' >> $HOME/.bashrc
 
-# Install 1.9 and all major stable 2.x Ansible releases
+# Install all major stable 2.x Ansible releases
 RUN \
     source $HOME/.bashrc;                            \
     mkvirtualenv ansible_latest;                     \
@@ -53,11 +53,11 @@ RUN \
         pyasn1 pyyaml pyOpenSSL httplib2             \
         Jinja2==2.8.1 paramiko==1.10  ansible;       \
     ansible --version;                               \
-    deactivate;                                      \  
+    deactivate;                                      \
     \
     \
     echo "===> Installing stable 2.x.0.0 ansible releases..."; \
-    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 ;           \
+    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 2.4.0.0 2.5.0.0 2.6.0.0;    \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
@@ -84,7 +84,7 @@ RUN \
         gcc build-essential python-dev                  \
         libffi-dev libssl-dev                        && \
     apt-get clean                                    && \
-    rm -rf /var/lib/apt/lists/*  /tmp/*     
+    rm -rf /var/lib/apt/lists/*  /tmp/*
 
 # Need to init during image first run
 CMD ["/sbin/init"]

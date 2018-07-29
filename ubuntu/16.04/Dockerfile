@@ -1,11 +1,11 @@
-# 
+#
 # Dockerfile for building Ansible image from source for Ubuntu 16.04, xenial with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
 #
-# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-latest ansible-playbook --version " 
-# 
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-latest ansible-playbook --version "
+#
 # Author  : Abhinav Y <https://yabhinav.github.io>
 # Version : 0.2.0
 #
@@ -23,7 +23,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-c"]
 
-# Install systemd which 
+# Install systemd which
 # iproute for ansible_facts networks
 # @see https://hub.docker.com/_/centos/
 RUN \
@@ -34,7 +34,7 @@ RUN \
     rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
     rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
     rm -f /lib/systemd/system/basic.target.wants/*; \
-    rm -f /lib/systemd/system/anaconda.target.wants/*; 
+    rm -f /lib/systemd/system/anaconda.target.wants/*;
 
 
 # Install Ansible
@@ -46,7 +46,7 @@ RUN \
         python-pkg-resources git python-pip iproute2        \
         libssl-dev libffi-dev python-dev build-essential    \
         python-virtualenv virtualenvwrapper
-         
+
 
 # Prepare VirtualEnvWrapper
 RUN \
@@ -55,9 +55,9 @@ RUN \
     echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
     source $HOME/.bashrc                                           && \
     mkdir -p $WORKON_HOME                                          && \
-    echo 'source /etc/bash_completion.d/virtualenvwrapper' >> $HOME/.bashrc 
+    echo 'source /etc/bash_completion.d/virtualenvwrapper' >> $HOME/.bashrc
 
-# Install 1.9 and all major stable 2.x Ansible releases
+# Install all major stable 2.x Ansible releases
 RUN \
     source $HOME/.bashrc;                            \
     mkvirtualenv ansible_latest;                     \
@@ -66,11 +66,11 @@ RUN \
     pip install --upgrade PyCrypto pyOpenSSL         \
         pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
-    deactivate;                                      \  
+    deactivate;                                      \
     \
     \
     echo "===> Installing stable 2.x.0.0 ansible releases..."; \
-    for version in 2.0.0.0 2.1.0.0 2.2.0.0  2.3.0.0;           \
+    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 2.4.0.0 2.5.0.0 2.6.0.0;    \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
@@ -95,7 +95,7 @@ RUN \
         gcc build-essential python-dev                  \
         libffi-dev libssl-dev                        && \
     apt-get clean                                    && \
-    rm -rf /var/lib/apt/lists/*  /tmp/*                           
+    rm -rf /var/lib/apt/lists/*  /tmp/*
 
 VOLUME ["/sys/fs/cgroup"]
 

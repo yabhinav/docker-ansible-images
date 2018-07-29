@@ -1,20 +1,24 @@
-# 
+#
 # Dockerfile for building Ansible image from source for Debian 8 jessie, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
 #
-# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-latest ansible-playbook --version " 
-# 
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-latest ansible-playbook --version "
+#
 # Author  : Abhinav Y <https://yabhinav.github.io>
-# Version : 0.1.0
+# Version : 0.2.0
 #
 
 # Pull Base OS image
+# @see https://hub.docker.com/_/debian/
 FROM debian:8
 
 MAINTAINER  yabhinav <yabhinav.github.com>
 
+###########################################################
+#***********  OVERRIDE ENABLED ENV VARIABLES  *************
+###########################################################
 # when running systemd
 ENV container docker
 
@@ -23,21 +27,18 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-c"]
 
-# Install systemd which 
-# iproute for ansible_facts networks
-# @see https://hub.docker.com/_/centos/
-RUN \
-    (cd /lib/systemd/system/sysinit.target.wants/ || exit; for i in *; do [ "$i" = systemd-tmpfiles-setup.service ] || rm -f "$i"; done); \
-    rm -f /lib/systemd/system/multi-user.target.wants/*; \
-    rm -f /etc/systemd/system/*.wants/*; \
-    rm -f /lib/systemd/system/local-fs.target.wants/*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-    rm -f /lib/systemd/system/basic.target.wants/*; \
-    rm -f /lib/systemd/system/anaconda.target.wants/*; 
 
+###########################################################
+#**************  ADD REQUIRED APP FILES  ******************
+###########################################################
 
-# Install Ansible
+# Enable Progress Bar
+RUN echo 'Dpkg::Progress-Fancy "1";' | tee -a /etc/apt/apt.conf.d/99progressbar
+
+###########################################################
+#***************  UPDATES & PRE-REQS  *********************
+###########################################################
+# Update Base
 RUN \
     echo "===> Installing Ansible prerequisites..."      && \
     apt-get -y update                                    && \
@@ -46,7 +47,7 @@ RUN \
         python-pkg-resources git python-pip                 \
         libssl-dev libffi-dev python-dev build-essential    \
         python-virtualenv virtualenvwrapper
-         
+
 
 # Prepare VirtualEnvWrapper
 RUN \
@@ -55,9 +56,12 @@ RUN \
     echo 'export WORKON_HOME=~/.virtualenvs' >> $HOME/.bashrc      && \
     source $HOME/.bashrc                                           && \
     mkdir -p $WORKON_HOME                                          && \
-    echo 'source /etc/bash_completion.d/virtualenvwrapper' >> $HOME/.bashrc 
+    echo 'source /etc/bash_completion.d/virtualenvwrapper' >> $HOME/.bashrc
 
-# Install 1.9 and all major stable 2.x Ansible releases
+###################################################################
+#*********************  ANSIBLE INSTALL  *************************#
+###################################################################
+# Install all major stable 2.x Ansible releases
 RUN \
     source $HOME/.bashrc;                            \
     mkvirtualenv ansible_latest;                     \
@@ -66,11 +70,11 @@ RUN \
     pip install --upgrade                            \
         pyyaml jinja2 pyOpenSSL httplib2 ansible;    \
     ansible --version;                               \
-    deactivate;                                      \  
+    deactivate;                                      \
     \
     \
     echo "===> Installing stable 2.x.0.0 ansible releases..."; \
-    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 ;           \
+    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 2.4.0.0 2.5.0.0 2.6.0.0;    \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
@@ -89,6 +93,9 @@ RUN \
     echo -e '[defaults]\nretry_files_enabled = False' > /etc/ansible/ansible.cfg  && \
     echo -e '\nansible_managed = Ansible managed, all changes will be lost' >> /etc/ansible/ansible.cfg
 
+###################################################################
+#******************  POST DEPLOY CLEAN UP  ************************
+###################################################################
 # Removed unused build packages after installing ansible
 RUN \
     echo "===> Removing unused APT resources..."     && \
@@ -96,9 +103,17 @@ RUN \
         gcc build-essential python-dev                  \
         libffi-dev libssl-dev                        && \
     apt-get clean                                    && \
-    rm -rf /var/lib/apt/lists/*  /tmp/*                           
+    rm -rf /var/lib/apt/lists/*  /tmp/*
 
-VOLUME ["/sys/fs/cgroup"]
 
-# Need to init during image first run
-CMD ["/sbin/init"]
+
+###################################################################
+#*****************  CONFIGURE START ITEMS  ************************
+###################################################################
+
+# Add the following to prevent any additions to the .bashrc from being executed via SSH or SCP sessions
+RUN \
+  echo -e  '\nif [[ -n \"\$SSH_CLIENT\" || -n \"\$SSH_TTY\" ]]; then\n\treturn;\nfi\n' >> /root/.bashrc && \
+  echo -e  '\nif [[ -n \"\$SSH_CLIENT\" || -n \"\$SSH_TTY\" ]]; then\n\treturn;\nfi\n' >> /etc/skel/.bashrc
+
+CMD /bin/bash

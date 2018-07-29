@@ -1,7 +1,7 @@
 # Docker-Ansible images for testing roles
 
 
-## Summary 
+## Summary
 
 These images have Ansible installed and are meant to be used for testing/developing roles.
 
@@ -14,14 +14,14 @@ This repository contains Dockerized Ansible, published to the public Docker Hub 
 
 These are Docker images for Ansible software, installed in a selected official Linux distributions.
 
-Base OS Images: 
+Base OS Images:
 
 - [CentOS](https://hub.docker.com/_/centos/) ([7](centos/7/Dockerfile), [6](centos/6/Dockerfile))
 - [Fedora](https://hub.docker.com/_/fedora/) ([25](fedora/25/Dockerfile))
-- [Ubuntu](https://hub.docker.com/_/ubuntu/) ([xenial](ubuntu/16.04/Dockerfile), [trusty](ubuntu/14.04/Dockerfile), [precise](ubuntu/12.04/Dockerfile) )
-- [Debian](https://hub.docker.com/_/debian/) ([jessie](debian/8), [wheezy](debian/7))
+- [Ubuntu](https://hub.docker.com/_/ubuntu/) ([bionic](ubuntu/18.04/Dockerfile), [xenial](ubuntu/16.04/Dockerfile), [trusty](ubuntu/14.04/Dockerfile) )
+- [Debian](https://hub.docker.com/_/debian/) ([buster](debian/10), [stretch](debian/9), [jessie](debian/8) )
 
-Ansible: 
+Ansible:
 
  - All latest `2.x.0.0` major releases are provided over python virtual-env as ansible_2.x.0.0
     `source ~/.bashrc; workon ansible_2.2.0.0`
@@ -38,17 +38,18 @@ Ansible:
 Latest ansible stable releases are installed from PyPi
 
 - CentOS
-    - 6: `yabhinav/ansible:centos6` 
-    - 7: `yabhinav/ansible:centos7` 
+    - 6: `yabhinav/ansible:centos6`
+    - 7: `yabhinav/ansible:centos7`
 - Fedora
-    - 25: `yabhinav/ansible:fedora25` 
+    - 25: `yabhinav/ansible:fedora25`
 - Ubuntu
-    - 12.04: `yabhinav/ansible:ubuntu12.04` 
-    - 14.04: `yabhinav/ansible:ubuntu14.04` 
+    - 14.04: `yabhinav/ansible:ubuntu14.04`
     - 16.04: `yabhinav/ansible:ubuntu16.04`
+    - 18.04: `yabhinav/ansible:ubuntu18.04`
 - Debian
-    - 7: `yabhinav/ansible:debian7` 
-    - 8: `yabhinav/ansible:debian8` 
+    - 8: `yabhinav/ansible:debian8`
+    - 9: `yabhinav/ansible:debian9`
+    - 10: `yabhinav/ansible:debian10`
 
 
 ## Usage
@@ -68,16 +69,16 @@ Latest ansible stable releases are installed from PyPi
 ### PyCrypto
 
   - With CentOS when ansible is installed with pip, the playbooks fail to run due to the bug ```ERROR! Unexpected Exception: 'module' object has no attribute 'HAVE_DECL_MPZ_POWM_SEC'```
-    * Refer [issue](https://bugs.launchpad.net/pycrypto/+bug/1206836), Anisble requires pycrypto2.6+ 
-    * Fix is to ```pip install PyCrypto``` , refer [here](http://stackoverflow.com/questions/22941029/python-fabric-error-module-object-has-no-attribute-have-decl-mpz-powm-sec) 
+    * Refer [issue](https://bugs.launchpad.net/pycrypto/+bug/1206836), Anisble requires pycrypto2.6+
+    * Fix is to ```pip install PyCrypto``` , refer [here](http://stackoverflow.com/questions/22941029/python-fabric-error-module-object-has-no-attribute-have-decl-mpz-powm-sec)
   - With Fedora `` Missing /usr/lib/rpm/redhat/redhat-hardened-cc1 ``
     * Install redhat-rpm-config , refer [bug1424582](https://bugs.launchpad.net/openstack-gate/+bug/1424582)
 
 
-### [FQDN issue](https://github.com/docker/docker/issues/31199) 
+### [FQDN issue](https://github.com/docker/docker/issues/31199)
 
   - With CentOS6 offical docker image `docker run -h testlab.example.com` sets `etc/hosts` but ignores `/etc/sysconfig/network`.
-  - `centos:6` comes with preconfigured `/etc/sysconfig/network` and hence there will be an issue when ansible retrieves hostname. Sometimes it will be `testlab.example.com` and sometimes it is `localhost.localdomain`. 
+  - `centos:6` comes with preconfigured `/etc/sysconfig/network` and hence there will be an issue when ansible retrieves hostname. Sometimes it will be `testlab.example.com` and sometimes it is `localhost.localdomain`.
 
   -  To fix this `yabhinav/ansible:centos6` docker image had been updated to remove the line `HOSTNAME=localhost.localdomain` from `/etc/sysconfig/network`
 
@@ -89,10 +90,10 @@ Latest ansible stable releases are installed from PyPi
 
       ``$ sudo apt-get install --only-upgrade git docker-engine``
       ``$ docker run --detach -h testlab.example.com --volume="${PWD}":/etc/ansible/roles/role_under_test:ro ubuntu1604-ansible  > "${container_id}"``
-     `` $ docker exec  "$(cat ${container_id})" bash -ic  "source ~/.bashrc &&  workon ansible_${ansible_version} && ansible-playbook ${test_playbook} --syntax-check && deactivate ; (exit \$?)"`` 
+     `` $ docker exec  "$(cat ${container_id})" bash -ic  "source ~/.bashrc &&  workon ansible_${ansible_version} && ansible-playbook ${test_playbook} --syntax-check && deactivate ; (exit \$?)"``
 
 ### Sourcing issue in Ubuntu
-  - Ubuntu comes with default dash shell, so source command is not found and also sourcing ~/.bashrc doesn't load the virtualenvwrapper script. 
+  - Ubuntu comes with default dash shell, so source command is not found and also sourcing ~/.bashrc doesn't load the virtualenvwrapper script.
   - To fix this set default shell in build as `/bin/bash` , this will be an env variable in Dockerfile
     `` SHELL ["/bin/bash", "-c"]  ``
   - Also remove the line  `/[ -z "$PS1" ] && return/d`  from `~/.bashrc`
@@ -119,4 +120,3 @@ MIT / BSD
 ## Author Information
 
 Created by [Abhinav Yalamanchili](https://yabhinav.github.com)
-

@@ -1,11 +1,11 @@
-# 
+#
 # Dockerfile for building Ansible image from source for Fedora 25, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
 #
-# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
-# 
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version "
+#
 # Author  : Abhinav Y <https://yabhinav.github.io>
 # Version : 0.2.0
 #
@@ -17,7 +17,7 @@ MAINTAINER  yabhinav <yabhinav.github.com>
 
 ENV container docker
 
-# Install systemd which 
+# Install systemd which
 # iproute for ansible_facts networks
 # @see https://hub.docker.com/_/centos/
 # @see https://bugs.launchpad.net/openstack-gate/+bug/1424582
@@ -43,7 +43,7 @@ RUN \
                 gcc make git sudo curl python2-dnf                         \
                 python python-devel pyOpenSSL                              \
                 python-keyczar libselinux-python python-pip                \
-                python-paramiko openssl-devel libffi-devel                 \   
+                python-paramiko openssl-devel libffi-devel                 \
                 python-virtualenv python-virtualenvwrapper              && \
     dnf clean all
 
@@ -56,7 +56,7 @@ RUN \
     echo 'source /usr/bin/virtualenvwrapper.sh' >> $HOME/.bashrc   && \
     echo 'source $HOME/.bashrc' >> $HOME/.profile
 
-# Install 1.9 and all major stable 2.x Ansible releases
+# Install all major stable 2.x Ansible releases
 RUN \
     source $HOME/.profile;                           \
     mkvirtualenv ansible_latest;                     \
@@ -65,11 +65,11 @@ RUN \
     pip install --upgrade                            \
         pyyaml jinja2  httplib2 ansible;             \
     ansible --version;                               \
-    deactivate;                                      \  
+    deactivate;                                      \
     \
     \
     echo "===> Installing stable 2.x.0.0 ansible releases..."; \
-    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 ;           \
+    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 2.4.0.0 2.5.0.0 2.6.0.0;    \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \

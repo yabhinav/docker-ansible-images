@@ -1,11 +1,11 @@
-# 
+#
 # Dockerfile for building Ansible image from source for CentOS 6, with as few additional software as possible.
 #
 # Multiple stable 2.x.0.0 versions are installed over single image
 # to execute playbooks on certain version run command :
 #
-# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version " 
-# 
+# docker exec --tty "$(cat ${container_id})" bash -c "source $HOME/.bashrc; workon ansible-2.2.0.0 ansible-playbook --version "
+#
 # Author  : Abhinav Y <https://yabhinav.github.io>
 # Version : 0.3.0
 # fixing ansible service module bug @see https://github.com/ansible/ansible/issues/19763
@@ -46,7 +46,7 @@ RUN \
     source $HOME/.bashrc                                                    && \
     wget -q --no-check-certificate https://bootstrap.pypa.io/ez_setup.py    && \
     /usr/local/bin/python2.7 ez_setup.py  1>/dev/null                       && \
-    /usr/local/bin/easy_install-2.7 pip   1>/dev/null             
+    /usr/local/bin/easy_install-2.7 pip   1>/dev/null
 
 # Prepare VirtualEnvWrapper
 RUN \
@@ -59,7 +59,7 @@ RUN \
     echo 'source /usr/local/bin/virtualenvwrapper.sh' >> $HOME/.bashrc   && \
     echo 'source $HOME/.bashrc' >> $HOME/.profile
 
-# Install 1.9 and all major stable 2.x Ansible releases
+# Install all major stable 2.x Ansible releases
 RUN \
     source $HOME/.profile;                           \
     mkvirtualenv ansible_latest;                     \
@@ -69,11 +69,11 @@ RUN \
         PyCrypto ndg-httpsclient urllib3[secure]     \
         pyyaml jinja2==2.8.1 httplib2 ansible;       \
     ansible --version;                               \
-    deactivate;                                      \  
+    deactivate;                                      \
     \
     \
     echo "===> Installing stable 2.x.0.0 ansible releases..."; \
-    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0;            \
+    for version in 2.0.0.0 2.1.0.0 2.2.0.0 2.3.0.0 2.4.0.0 2.5.0.0 2.6.0.0;    \
     do                                                         \
         mkvirtualenv ansible_$version;                         \
         echo "===> Installing Ansible-$version ...";           \
@@ -96,4 +96,3 @@ RUN \
 
 # Need to init during image first run
 CMD ["/sbin/init"]
-
