@@ -44,7 +44,7 @@ RUN \
     apt-get purge virtualenvwrapper                      && \
     apt-get install -y --no-install-recommends              \
         sudo bash-completion software-properties-common     \
-        python-pkg-resources git python-pip                 \
+        python-pkg-resources git python-pip iproute2        \
         libssl-dev libffi-dev python-dev build-essential    \
         python-virtualenv virtualenvwrapper
 
